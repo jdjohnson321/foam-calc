@@ -26,12 +26,14 @@ html, body {
   background: radial-gradient(ellipse at 60% 80%, #7a2a00 0%, #3a1200 40%, #1a1a1a 100%);
   background-attachment: fixed;
   color: #333;
+  overflow: hidden;
 }
 
 #app {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
   max-width: 480px;
   margin: 0 auto;
 }
@@ -481,3 +483,4 @@ showTab('storage');
 
 </body>
 </html>
+
