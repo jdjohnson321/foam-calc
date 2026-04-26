@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Foam Calc">
+  <title>Class B Foam Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1a9e8f;
+      --teal-dark: #14796d;
+      --card-bg: rgba(255,255,255,0.93);
+      --result-bg: rgba(20,121,109,0.92);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+      background: radial-gradient(ellipse at 60% 80%, #7a2a00 0%, #3a1200 40%, #1a1a1a 100%);
+      background-attachment: fixed;
+      color: #333;
+      overflow: hidden;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 18px;
+      padding-top: max(14px, env(safe-area-inset-top));
+      color: #fff;
+    }
+    header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px rgba(0,0,0,.6);
+    }
+
+    /* CONTENT */
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 10px 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* SECTION LABEL */
+    .section-label {
+      background: var(--teal);
+      color: #fff;
+      text-align: center;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 1px;
+      padding: 8px 0;
+      border-radius: 8px 8px 0 0;
+      margin-bottom: 2px;
+      margin-top: 8px;
+      text-transform: uppercase;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    .card-label {
+      font-size: 11px;
+      color: #666;
+      font-weight: 600;
+      margin-bottom: 3px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .card-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 0;
+    }
+    .card-row .card { flex: 1; }
+
+    /* INPUTS */
+    .card input {
+      width: 100%;
+      font-size: 34px;
+      font-weight: 400;
+      color: #222;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: 'Barlow Condensed', Arial, sans-serif;
+      letter-spacing: 1px;
+      line-height: 1.1;
+      -webkit-appearance: none;
+    }
+    .card input[type=number]::-webkit-inner-spin-button,
+    .card input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    /* STEPPER ROW */
+    .stepper-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .stepper-row input {
+      text-align: center;
+      width: 55% !important;
+      font-size: 34px;
+    }
+    .step-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid #bbb;
+      background: transparent;
+      cursor: pointer;
+      font-size: 22px;
+      color: #555;
+      font-weight: 700;
+      line-height: 1;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .step-btn:active { background: rgba(0,0,0,0.08); }
+
+    /* RESULT CARDS */
+    .result-card {
+      background: var(--result-bg);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 6px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.4);
+    }
+    .result-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.85);
+      font-weight: 600;
+      margin-bottom: 2px;
+      letter-spacing: 0.5px;
+    }
+    .result-value {
+      font-size: 44px;
+      font-weight: 300;
+      color: #fff;
+      line-height: 1.05;
+      letter-spacing: 2px;
+    }
+    .result-value.big { font-size: 52px; }
+    .card-row .result-card { flex: 1; }
+
+    /* NOTE CARD */
+    .note-card {
+      background: rgba(255,255,255,0.85);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      color: #444;
+      font-size: 12px;
+      line-height: 1.6;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+
+    /* NOTES TAB */
+    .note-item {
+      background: rgba(255,255,255,0.82);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 5px;
+      color: #555;
+      font-size: 13px;
+      line-height: 1.5;
+      box-shadow: 0 1px 4px rgba(0,0,0,.12);
+    }
+    .nfpa-header {
+      background: rgba(255,255,255,0.3);
+      border-radius: 8px;
+      padding: 9px 14px;
+      margin-bottom: 5px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    /* TAB BAR */
+    nav {
+      display: flex;
+      border-top: 1px solid #333;
+      background: rgba(25,25,25,0.97);
+      padding-bottom: env(safe-area-inset-bottom);
+      flex-shrink: 0;
+    }
+    nav button {
+      flex: 1;
+      padding: 14px 4px;
+      border: none;
+      background: transparent;
+      font-family: 'Barlow Condensed', Arial, sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      color: #888;
+      cursor: pointer;
+      border-top: 3px solid transparent;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    nav button.active {
+      color: #fff;
+      background: var(--teal);
+      border-top-color: var(--teal);
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header><h1>Class B Foam Calculator</h1></header>
+  <div id="content"></div>
+  <nav>
+    <button id="tab-storage" class="active" onclick="showTab('storage')">Storage...</button>
+    <button id="tab-spill" onclick="showTab('spill')">Spill/Dike</button>
+    <button id="tab-seal" onclick="showTab('seal')">Seal Fire</button>
+    <button id="tab-notes" onclick="showTab('notes')">Notes</button>
+  </nav>
+</div>
+
+<script>
+// ─── HELPERS ───────────────────────────────────────────────
+function num(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function set(id, val) { const el = document.getElementById(id); if (el) el.innerText = val; }
+
+// Stepper: cycle through fixed options; if current value not in list, snap to nearest
+function stepCycle(inputId, options, dir) {
+  const input = document.getElementById(inputId);
+  const cur = parseFloat(input.value) || options[0];
+  let idx = options.findIndex(v => Math.abs(v - cur) < 0.0001);
+  if (idx === -1) {
+    // not in list — find closest
+    idx = options.reduce((best, v, i) => Math.abs(v - cur) < Math.abs(options[best] - cur) ? i : best, 0);
+  }
+  const next = options[Math.max(0, Math.min(options.length - 1, idx + dir))];
+  input.value = next;
+  input.dispatchEvent(new Event('input'));
+}
+
+// Only allow digits and a single decimal point
+function numericInput(e) {
+  const v = e.target.value;
+  if (!/^[\d.]*$/.test(v)) e.target.value = v.replace(/[^\d.]/g, '');
+}
+
+// ─── TAB SWITCHING ─────────────────────────────────────────
+function showTab(tab) {
+  ['storage','spill','seal','notes'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  const renders = { storage: renderStorage, spill: renderSpill, seal: renderSeal, notes: renderNotes };
+  renders[tab]();
+}
+
+// ─── TAB 1: STORAGE TANK FULL ──────────────────────────────
+function renderStorage() {
+  document.getElementById('content').innerHTML = `
+    <div class="section-label">Storage Tank Full</div>
+    <div class="card-row">
+      <div class="card">
+        <div class="card-label">Tank Diameter Ft</div>
+        <input id="s-dia" type="text" inputmode="decimal" value="100" oninput="calcStorage()">
+      </div>
+      <div class="card">
+        <div class="card-label">Enter .1 &nbsp;.16 &nbsp;or &nbsp;.20</div>
+        <input id="s-rate" type="text" inputmode="decimal" value="0.16" oninput="calcStorage()">
+      </div>
+    </div>
+    <div class="card-row">
+      <div class="card">
+        <div class="card-label">Foam % 1 3 6</div>
+        <div class="stepper-row">
+          <button class="step-btn" onclick="stepCycle('s-foam',[1,3,6],-1)">−</button>
+          <input id="s-foam" type="text" inputmode="decimal" value="1" oninput="numericInput(event);calcStorage()">
+          <button class="step-btn" onclick="stepCycle('s-foam',[1,3,6],1)">+</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">App Time 15/20/50/65</div>
+        <input id="s-time" type="text" inputmode="decimal" value="65" oninput="calcStorage()">
+      </div>
+    </div>
+    <div class="card-row">
+      <div class="result-card">
+        <div class="result-label">Critical Flow GPM</div>
+        <div class="result-value" id="s-cf">0</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Foam GPM</div>
+        <div class="result-value" id="s-fgpm">0</div>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-label">Total Foam Needed Gal.</div>
+      <div class="result-value big" id="s-total">0</div>
+    </div>
+  `;
+  calcStorage();
+}
+
+function calcStorage() {
+  const dia  = parseFloat(document.getElementById('s-dia')?.value)  || 0;
+  const rate = parseFloat(document.getElementById('s-rate')?.value) || 0;
+  const foam = parseFloat(document.getElementById('s-foam')?.value) || 0;
+  const time = parseFloat(document.getElementById('s-time')?.value) || 0;
+  const area = dia * dia * 0.7855;
+  const cf   = Math.round(area * rate);
+  const fgpm = Math.round(cf * foam / 100);
+  const tot  = Math.round(fgpm * time);
+  set('s-cf', cf); set('s-fgpm', fgpm); set('s-total', tot);
+}
+
+// ─── TAB 2: SPILL / DIKE ───────────────────────────────────
+function renderSpill() {
+  document.getElementById('content').innerHTML = `
+    <div class="section-label">Spill / Dike</div>
+    <div class="card">
+      <div class="card-label">Enter Square Ft</div>
+      <input id="p-sqft" type="text" inputmode="decimal" value="4000" oninput="calcSpill()">
+    </div>
+    <div class="card-row">
+      <div class="card">
+        <div class="card-label">Foam % 1, 3 or 6</div>
+        <div class="stepper-row">
+          <button class="step-btn" onclick="stepCycle('p-foam',[1,3,6],-1)">−</button>
+          <input id="p-foam" type="text" inputmode="decimal" value="1" oninput="numericInput(event);calcSpill()">
+          <button class="step-btn" onclick="stepCycle('p-foam',[1,3,6],1)">+</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">CF Formula .1H .2P</div>
+        <div class="stepper-row">
+          <button class="step-btn" onclick="stepCycle('p-cf',[0.1,0.2],-1)">−</button>
+          <input id="p-cf" type="text" inputmode="decimal" value="0.1" oninput="numericInput(event);calcSpill()">
+          <button class="step-btn" onclick="stepCycle('p-cf',[0.1,0.2],1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Appli. Time (min)</div>
+      <div class="stepper-row">
+        <button class="step-btn" onclick="stepCycle('p-time',[15,20,30,45,60],-1)">−</button>
+        <input id="p-time" type="text" inputmode="decimal" value="15" oninput="numericInput(event);calcSpill()">
+        <button class="step-btn" onclick="stepCycle('p-time',[15,20,30,45,60],1)">+</button>
+      </div>
+    </div>
+    <div class="card-row">
+      <div class="result-card">
+        <div class="result-label">Critical Flow GPM</div>
+        <div class="result-value" id="p-cfr">0</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Foam GPM</div>
+        <div class="result-value" id="p-fgpm">0</div>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-label">Foam Needed Gal.</div>
+      <div class="result-value big" id="p-total">0</div>
+    </div>
+  `;
+  calcSpill();
+}
+
+function calcSpill() {
+  const sqft = parseFloat(document.getElementById('p-sqft')?.value) || 0;
+  const foam = parseFloat(document.getElementById('p-foam')?.value) || 0;
+  const cf   = parseFloat(document.getElementById('p-cf')?.value)   || 0;
+  const time = parseFloat(document.getElementById('p-time')?.value) || 0;
+  const cfr  = Math.round(sqft * cf);
+  const fgpm = Math.round(cfr * foam / 100);
+  const tot  = Math.round(fgpm * time);
+  set('p-cfr', cfr); set('p-fgpm', fgpm); set('p-total', tot);
+}
+
+// ─── TAB 3: SEAL FIRE ──────────────────────────────────────
+const DIAM_OPTIONS = Array.from({length: 40}, (_, i) => (i + 1) * 10); // 10..400 step 10
+
+function renderSeal() {
+  document.getElementById('content').innerHTML = `
+    <div class="section-label">Seal Fire</div>
+    <div class="card">
+      <div class="card-label">Tank Diameter Ft</div>
+      <div class="stepper-row">
+        <button class="step-btn" onclick="stepCycle('l-dia', DIAM_OPTIONS, -1)">−</button>
+        <input id="l-dia" type="text" inputmode="decimal" value="210" oninput="numericInput(event);calcSeal()">
+        <button class="step-btn" onclick="stepCycle('l-dia', DIAM_OPTIONS, 1)">+</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Foam % 1 = hydrocarbons &nbsp;&nbsp;3 , 6 = polar solvents</div>
+      <div class="stepper-row">
+        <button class="step-btn" onclick="stepCycle('l-foam',[1,3,6],-1)">−</button>
+        <input id="l-foam" type="text" inputmode="decimal" value="1" oninput="numericInput(event);calcSeal()">
+        <button class="step-btn" onclick="stepCycle('l-foam',[1,3,6],1)">+</button>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-label">CF – Foam Solution Rate GPM</div>
+      <div class="result-value" id="l-cf">0</div>
+    </div>
+    <div class="result-card">
+      <div class="result-label">Foam Concentrate Rate GPM</div>
+      <div class="result-value" id="l-conc">0</div>
+    </div>
+    <div class="result-card">
+      <div class="result-label">Total Foam Concentrate @ 20 Min</div>
+      <div class="result-value big" id="l-total">0</div>
+    </div>
+    <div class="note-card">
+      Note: Tank area – 4 ft smaller tank area = seal area.<br>
+      Seal area × .3 × Foam % × 20 min.<br>
+      NFPA 11 also requires 3 × 50 gpm handlines for spot fires.
+    </div>
+  `;
+  calcSeal();
+}
+
+function calcSeal() {
+  const d    = parseFloat(document.getElementById('l-dia')?.value)  || 0;
+  const foam = parseFloat(document.getElementById('l-foam')?.value) || 0;
+  const tankArea  = d * d * 0.7855;
+  const innerArea = Math.max(0, d - 4) * Math.max(0, d - 4) * 0.7855;
+  const sealArea  = tankArea - innerArea;
+  const cf   = Math.round(sealArea * 0.3);
+  const conc = Math.round(cf * foam / 100);
+  const tot  = Math.round(conc * 20);
+  set('l-cf', cf); set('l-conc', conc); set('l-total', tot);
+}
+
+// ─── TAB 4: NOTES ──────────────────────────────────────────
+function renderNotes() {
+  const formulas = [
+    'Rough Tank area = D² × .8 (.07855)',
+    'Critical Flow = Area × App Rate',
+    'Concentrate rate = Solution × Foam %',
+    'Concentrate needed = Concentrate rate × Time',
+  ];
+  const nfpa = [
+    'Spill Dike area .1 gpm/ft² 15 min  [Polar = .2 gpm/ft²]',
+    'Full surface tank Flash Point >100 — .16 gpm/ft² 50 min',
+    'Full surface tank 150–200 ft — .18 gpm/ft² 65 min',
+    'Tank >200 ft — .2 gpm/ft²',
+    'Full surface polar solvents — .2 gpm/ft² 65 min',
+    'Foam chamber / fixed syst — .1 gpm/ft² [cone roof / sub surface]',
+    'Foam chamber should rupture at 30 psi',
+    'Low expansion = up to 20:1 &nbsp; FOG = 5:1 &nbsp; TFT attachment = 8:1',
+  ];
+
+  document.getElementById('content').innerHTML = `
+    ${formulas.map(f => `<div class="note-item">${f}</div>`).join('')}
+    <div class="nfpa-header">NFPA 11</div>
+    ${nfpa.map(n => `<div class="note-item">${n}</div>`).join('')}
+  `;
+}
+
+// ─── INIT ──────────────────────────────────────────────────
+showTab('storage');
+</script>
+</body>
+</html>
