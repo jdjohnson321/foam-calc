@@ -30,8 +30,7 @@
     #app {
       display: flex;
       flex-direction: column;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      height: 100%;
       max-width: 480px;
       margin: 0 auto;
     }
@@ -134,7 +133,7 @@
       background: transparent;
       cursor: pointer;
       font-size: 22px;
-      color: #111;
+      color: #555;
       font-weight: 700;
       line-height: 1;
       flex-shrink: 0;
@@ -177,8 +176,7 @@
       border-radius: 8px;
       padding: 10px 14px;
       margin-bottom: 6px;
-      color: #000;
-      font-weight: 700;
+      color: #444;
       font-size: 12px;
       line-height: 1.6;
       box-shadow: 0 2px 8px rgba(0,0,0,.2);
@@ -190,9 +188,8 @@
       border-radius: 8px;
       padding: 10px 14px;
       margin-bottom: 5px;
-      color: #000;
+      color: #555;
       font-size: 13px;
-      font-weight: 700;
       line-height: 1.5;
       box-shadow: 0 1px 4px rgba(0,0,0,.12);
     }
@@ -252,22 +249,28 @@
 
 <script>
 // ─── HELPERS ───────────────────────────────────────────────
-function num(id) { return parseFloat(document.getElementById(id).value) || 0; } function set(id, val) { const el = document.getElementById(id); if (el) el.innerText = val; }
+function num(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function set(id, val) { const el = document.getElementById(id); if (el) el.innerText = val; }
 
-// Stepper: cycle through fixed options; if current value not in list, snap to nearest function stepCycle(inputId, options, dir) {
+// Stepper: cycle through fixed options; if current value not in list, snap to nearest
+function stepCycle(inputId, options, dir) {
   const input = document.getElementById(inputId);
   const cur = parseFloat(input.value) || options[0];
   let idx = options.findIndex(v => Math.abs(v - cur) < 0.0001);
   if (idx === -1) {
+    // not in list — find closest
     idx = options.reduce((best, v, i) => Math.abs(v - cur) < Math.abs(options[best] - cur) ? i : best, 0);
   }
   const next = options[Math.max(0, Math.min(options.length - 1, idx + dir))];
   input.value = next;
-  input.dispatchEvent(new Event('input')); }
+  input.dispatchEvent(new Event('input'));
+}
 
-// Only allow digits and a single decimal point function numericInput(e) {
+// Only allow digits and a single decimal point
+function numericInput(e) {
   const v = e.target.value;
-  if (!/^[\d.]*$/.test(v)) e.target.value = v.replace(/[^\d.]/g, ''); }
+  if (!/^[\d.]*$/.test(v)) e.target.value = v.replace(/[^\d.]/g, '');
+}
 
 // ─── TAB SWITCHING ─────────────────────────────────────────
 function showTab(tab) {
@@ -278,7 +281,8 @@ function showTab(tab) {
   renders[tab]();
 }
 
-// ─── TAB 1: STORAGE TANK FULL ────────────────────────────── function renderStorage() {
+// ─── TAB 1: STORAGE TANK FULL ──────────────────────────────
+function renderStorage() {
   document.getElementById('content').innerHTML = `
     <div class="section-label">Storage Tank Full</div>
     <div class="card-row">
@@ -287,12 +291,8 @@ function showTab(tab) {
         <input id="s-dia" type="text" inputmode="decimal" value="100" oninput="calcStorage()">
       </div>
       <div class="card">
-        <div class="card-label">.1 &nbsp;.16 &nbsp;.20</div>
-        <div class="stepper-row">
-          <button class="step-btn" onclick="stepCycle('s-rate',[0.1,0.16,0.2],-1)">−</button>
-          <input id="s-rate" type="text" inputmode="decimal" value="0.16" oninput="numericInput(event);calcStorage()">
-          <button class="step-btn" onclick="stepCycle('s-rate',[0.1,0.16,0.2],1)">+</button>
-        </div>
+        <div class="card-label">Enter .1 &nbsp;.16 &nbsp;or &nbsp;.20</div>
+        <input id="s-rate" type="text" inputmode="decimal" value="0.16" oninput="calcStorage()">
       </div>
     </div>
     <div class="card-row">
@@ -336,7 +336,8 @@ function calcStorage() {
   const cf   = Math.round(area * rate);
   const fgpm = Math.round(cf * foam / 100);
   const tot  = Math.round(fgpm * time);
-  set('s-cf', cf); set('s-fgpm', fgpm); set('s-total', tot); }
+  set('s-cf', cf); set('s-fgpm', fgpm); set('s-total', tot);
+}
 
 // ─── TAB 2: SPILL / DIKE ───────────────────────────────────
 function renderSpill() {
@@ -398,7 +399,8 @@ function calcSpill() {
   const cfr  = Math.round(sqft * cf);
   const fgpm = Math.round(cfr * foam / 100);
   const tot  = Math.round(fgpm * time);
-  set('p-cfr', cfr); set('p-fgpm', fgpm); set('p-total', tot); }
+  set('p-cfr', cfr); set('p-fgpm', fgpm); set('p-total', tot);
+}
 
 // ─── TAB 3: SEAL FIRE ──────────────────────────────────────
 const DIAM_OPTIONS = Array.from({length: 40}, (_, i) => (i + 1) * 10); // 10..400 step 10
@@ -452,7 +454,8 @@ function calcSeal() {
   const cf   = Math.round(sealArea * 0.3);
   const conc = Math.round(cf * foam / 100);
   const tot  = Math.round(conc * 20);
-  set('l-cf', cf); set('l-conc', conc); set('l-total', tot); }
+  set('l-cf', cf); set('l-conc', conc); set('l-total', tot);
+}
 
 // ─── TAB 4: NOTES ──────────────────────────────────────────
 function renderNotes() {
@@ -485,4 +488,5 @@ showTab('storage');
 </script>
 </body>
 </html>
+
 
