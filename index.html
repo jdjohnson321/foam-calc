@@ -293,11 +293,9 @@ function renderStorage() {
         <input id="s-dia" type="text" inputmode="decimal" value="100" oninput="calcStorage()">
       </div>
       <div class="card">
-<div class="card-label">.1 &nbsp;.16 &nbsp;.20</div> <div style="position:relative;">
-  <button class="step-btn" style="position:absolute;left:0;top:0;" onclick="stepCycle('s-rate',[0.1,0.16,0.2],-1)">−</button>
-  <input id="s-rate" type="text" inputmode="decimal" value="0.16" oninput="numericInput(event);calcStorage()" style="text-align:center;">
-  <button class="step-btn" style="position:absolute;right:0;top:0;" onclick="stepCycle('s-rate',[0.1,0.16,0.2],1)">+</button>
-</div>
+        <div class="card-label">Enter .1 &nbsp;.16 &nbsp;or &nbsp;.20</div>
+        <input id="s-rate" type="text" inputmode="decimal" value="0.16" oninput="calcStorage()">
+      </div>
     </div>
     <div class="card-row">
       <div class="card">
@@ -492,6 +490,7 @@ showTab('storage');
 </script>
 </body>
 </html>
+
 
 
 
