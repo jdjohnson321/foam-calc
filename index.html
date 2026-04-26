@@ -292,9 +292,10 @@ function renderStorage() {
       </div>
       <div class="card">
         <div class="card-label">Enter .1 &nbsp;.16 &nbsp;or &nbsp;.20</div>
-        <button class="step-btn" onclick="stepCycle('p-time',[.1,.16,.20],-1)">−</button>
-        <input id="p-time" type="text" inputmode="decimal" value=".16" oninput="numericInput(event);calcSpill()">
-        <button class="step-btn" onclick="stepCycle('p-time',[.1,.16,.20],1)">+</button>
+          <div class="stepper-row">
+          <button class="step-btn" onclick="stepCycle('s-foam',[.1,.16,.20],-1)">−</button>
+          <input id="s-rate" type="text" inputmode="decimal" value="0.16" oninput="calcStorage()">
+          <button class="step-btn" onclick="stepCycle('s-foam',[.1,.16,.20],1)">+</button>
       </div>
     </div>
     <div class="card-row">
@@ -490,4 +491,3 @@ showTab('storage');
 </script>
 </body>
 </html>
-
