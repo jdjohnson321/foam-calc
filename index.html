@@ -240,7 +240,10 @@
 </head>
 <body>
 <div id="app">
-  <header><h1>Class B Foam Calculator</h1></header>
+  <header>
+  <h1>Class B Foam Calculator</h1>
+  <button onclick="shareApp()" style="background:transparent;border:none;color:#fff;font-size:22px;cursor:pointer;margin-left:10px;">⬆️</button>
+</header>
   <div id="content"></div>
   <nav>
     <button id="tab-storage" class="active" onclick="showTab('storage')">Storage...</button>
@@ -487,6 +490,17 @@ function renderNotes() {
 }
 
 // ─── INIT ──────────────────────────────────────────────────
+function shareApp() {
+  if (navigator.share) {
+    navigator.share({
+      title: 'Class B Foam Calculator',
+      url: 'https://jdjohnson321.github.io/Foam-Calc/'
+    });
+  } else {
+    navigator.clipboard.writeText('https://jdjohnson321.github.io/Foam-Calc/');
+    alert('Link copied to clipboard!');
+  }
+}
 showTab('storage');
 </script>
 </body>
